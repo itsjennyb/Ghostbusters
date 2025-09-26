@@ -1,6 +1,6 @@
 const express = require('express');
 const path = require('path');
-const db = require('./config/connection');
+require('./config/connection');
 // IMPORT APOLLO SERVER AND OUR TYPEDEFS/RESOLVERS
 const { ApolloServer } = require('apollo-server-express');
 const { typeDefs, resolvers } = require('./schemas')
@@ -34,11 +34,9 @@ const startApolloServer = async (typeDefs, resolvers) => {
   await server.start();
   server.applyMiddleware({ app });
 
-  db.once('open', () => {
-    app.listen(PORT, () => {
-      console.log(`API server running on port ${PORT}!`);
-      console.log(`Use GraphQL at http://localhost:${PORT}${server.graphqlPath}`)
-    });
+  app.listen(PORT, () => {
+    console.log(`API server running on port ${PORT}!`);
+    console.log(`Use GraphQL at http://localhost:${PORT}${server.graphqlPath}`)
   });
 }
 

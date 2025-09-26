@@ -79,12 +79,10 @@ const Explore = () => {
             const matches = matchData.addLike.matches;
 
             if (matchData.addLike.matches.length) {
-                for (var i = 0; i < matches.length; i++) {
-                    if (matches[i]._id.includes(me._id)) {
-                        setMatch1(me);
-                        setMatch2(matchData.addLike);
-                        openModal();
-                    }
+                if (matches.includes(me._id)) {
+                    setMatch1(me);
+                    setMatch2(matchData.addLike);
+                    openModal();
                 }
             }
 

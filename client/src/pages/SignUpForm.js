@@ -40,9 +40,14 @@ const SignUpForm = () => {
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <input className='loginInput' {...register("firstName", {required:true})} placeholder="First Name" />
-        {errors.email && <small className='loginSmall'>This field is required</small>}
-        
+        <input
+          className='loginInput'
+          {...register("firstName", {required:true})}
+          placeholder="First Name"
+          onKeyDown={(e) => e.key === 'Enter' && handleSubmit(onSubmit)()}
+        />
+        {errors.firstName && <small className='loginSmall'>This field is required</small>}
+
         <input
           className='loginInput'
           {...register("email", {
@@ -50,6 +55,7 @@ const SignUpForm = () => {
             required: true,
           })}
           placeholder="Email"
+          onKeyDown={(e) => e.key === 'Enter' && handleSubmit(onSubmit)()}
         />
         {errors.email && <small className='loginSmall'>This field is required</small>}
 
@@ -58,6 +64,7 @@ const SignUpForm = () => {
               type="password"
               {...register("password", {required: true})}
               placeholder="Password"
+              onKeyDown={(e) => e.key === 'Enter' && handleSubmit(onSubmit)()}
             />
             {errors.password && <small className='loginSmall'>This field is required</small>}
 

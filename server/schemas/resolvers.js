@@ -1,113 +1,100 @@
 const { AuthenticationError } = require('apollo-server-express');
-const { User, Review, Match } = require('../models');
-const Preference = require('../models/Preference');
-const Profile = require('../models/Profile');
+const UserRepository = require('../models/User');
 const { signToken } = require('../utils/auth');
 
 const resolvers = {
 
   Query: {
     getImage: async (parent, args, context) => {
-      if (context.user) {
-        return User.findOne(
-          { _id: context.user._id },
-          { image }
-        )
+      if (!context.user) {
+        throw new AuthenticationError('You must be logged in.');
       }
+
+      return UserRepository.getUserById(context.user._id);
     },
     me: async (parent, args, context) => {
-      if (context.user) {
-        return User.findOne({ _id: context.user._id }).populate('profile').populate('preference').populate('reviews').populate('likes').populate('matches').populate('dislikes');
+      if (!context.user) {
+        throw new AuthenticationError('You must be logged in.');
       }
-      throw new AuthenticationError('You must be logged in.');
+
+      return UserRepository.getUserById(context.user._id, { populate: true });
     },
     users: async () => {
-      return User.find().populate('profile');
-
+      return UserRepository.listUsers({ populate: true });
     },
-    user: async (parent, { userId }, context) => {
-      return User.findOne({ _id: userId }).populate('profile');
+    user: async (parent, { userId }) => {
+      return UserRepository.getUserById(userId, { populate: true });
     },
   },
 
   Mutation: {
 
     login: async (parent, args) => {
-      const user = await User.findOne({ email: args.email });
-      if (!user) {
+      const userForAuth = await UserRepository.getUserForAuthByEmail(args.email);
+
+      if (!userForAuth) {
         throw new AuthenticationError('User not found by that email.');
       }
-      const correctPw = await user.isCorrectPassword(args.password);
+
+      const correctPw = await UserRepository.verifyPassword(userForAuth, args.password);
+
       if (!correctPw) {
         throw new AuthenticationError('Incorrect password.');
       }
+
+      const user = await UserRepository.getUserById(userForAuth._id, { populate: true });
       const token = signToken(user);
-      return { token, user };
+
+      return { token, user, me: user };
     },
 
     addUser: async (parent, args) => {
-      const user = await User.create(args);
-      const token = signToken(user);
-      return { token, user };
+      const user = await UserRepository.createUser(args);
+      const hydratedUser = await UserRepository.getUserById(user._id, { populate: true });
+      const token = signToken(hydratedUser);
+
+      return { token, user: hydratedUser, me: hydratedUser };
     },
 
     addProfile: async (parent, args, context) => {
       if (context.user) {
-        const profile = await Profile.create(args.profile);
-
-        await User.findOneAndUpdate(
-          { _id: context.user._id },
-          { profile: profile._id }
-        );
+        const profile = await UserRepository.setProfile(context.user._id, args.profile);
         return profile;
-      } else {
-        throw new AuthenticationError('You must be logged in.');
       }
+      throw new AuthenticationError('You must be logged in.');
     },
 
     editProfile: async (parent, args, context) => {
       if (context.user) {
-        const profile = await Profile.findByIdAndUpdate(args.profile._id, args.profile, { new: true });
+        const profile = await UserRepository.updateProfile(context.user._id, args.profile);
         return profile;
-      } else {
-        throw new AuthenticationError('You must be logged in.');
       }
+      throw new AuthenticationError('You must be logged in.');
     },
 
     addPreference: async (parent, args, context) => {
       if (context.user) {
-        const preference = await Preference.create(args.preference);
-        await User.findOneAndUpdate(
-          { _id: context.user._id },
-          { preference: preference._id }
-        );
+        const preference = await UserRepository.setPreference(context.user._id, args.preference);
         return preference;
-      } else {
-        throw new AuthenticationError('You must be logged in.');
       }
+      throw new AuthenticationError('You must be logged in.');
     },
 
     editPreference: async (parent, args, context) => {
       if (context.user) {
-        const preference = await Preference.findByIdAndUpdate(args.preference._id, args.preference, { new: true });
+        const preference = await UserRepository.updatePreference(context.user._id, args.preference);
         return preference;
-      } else {
-        throw new AuthenticationError('You must be logged in.');
       }
+      throw new AuthenticationError('You must be logged in.');
     },
 
     addReview: async (parent, { userId, reviewText }, context) => {
       if (context.user) {
-
-        return User.findOneAndUpdate(
-          { _id: userId },
-          {
-            $addToSet: {
-              reviews: { reviewText, reviewer: context.user.firstName, image: context.user.image },
-            },
-          },
-          { new: true, runValidators: true }
-        );
+        return UserRepository.addReview({
+          targetUserId: userId,
+          reviewText,
+          reviewer: context.user,
+        });
       }
       throw new AuthenticationError('You must be logged in.');
     },
@@ -116,79 +103,27 @@ const resolvers = {
       if (!context.user) {
         throw new AuthenticationError('You must be logged in.');
       }
-      const newImage = args.image
-
-      return await User.findOneAndUpdate(
-        { _id: context.user._id },
-        { $set: { image: newImage } },
-        { new: true }
-      )
+      const newImage = args.image;
+      return UserRepository.updateUserImage(context.user._id, newImage);
     },
     addLike: async (parent, args, context) => {
       if (!context.user) {
         throw new AuthenticationError('You must be logged in.')
       }
-      const likedUser = await User.findOne({ _id: args.userId }).populate('likes').populate('matches');
-      const me = await User.findOne({ _id: context.user._id }).populate('likes').populate('matches');
-
-      const likedUserLikes = likedUser.likes;
-      const likedUserLikeIds = likedUserLikes.map(like => like._id.toString());
-      const myId = me._id.toString();
-
-      // IF LIKED USER ALREADY HAS YOU LIKED (ITS A MATCH)
-      if (likedUserLikeIds.includes(myId)) {
-
-        // UPDATE LIKED USER (REMOVE FROM LIKES)
-
-        const likeRemovedFromOther = await User.findOneAndUpdate(
-          { _id: likedUser._id },
-          { $pull: { likes: context.user._id } },
-          { new: true }
-        )
-
-        // UPDATE LIKED USER (ADD TO MATCHES)
-        const matchAddedToOther = await User.findOneAndUpdate(
-          { _id: likedUser._id },
-          { $addToSet: { matches: context.user._id } },
-          { new: true }
-        )
-
-        // UPDATE LOGGED IN USER TO ADD LIKED USER TO MATCHES
-        const matchAddedToMe = await User.findOneAndUpdate(
-          { _id: context.user._id },
-          { $addToSet: { matches: args.userId } },
-          { new: true }
-        )
-
-        return matchAddedToOther;
-      }
-
-      // IF THEY DON'T LIKE YOU YET
-
-      else {
-        // ADD LIKE TO USER'S LIKES
-
-        const user = await User.findOneAndUpdate(
-          { _id: context.user._id },
-          { $addToSet: { likes: args.userId } },
-          { new: true }
-        )
-
-        return likedUser
-
-      }
-
+      return UserRepository.addLike({
+        currentUserId: context.user._id,
+        likedUserId: args.userId,
+      });
     },
 
     addDislike: async (parent, args, context) => {
       if (!context.user) {
         throw new AuthenticationError('You must be logged in.')
       }
-      return await User.findOneAndUpdate(
-        { _id: context.user._id },
-        { $addToSet: { dislikes: args.userId } },
-        { new: true }
-      )
+      return UserRepository.addDislike({
+        currentUserId: context.user._id,
+        dislikedUserId: args.userId,
+      });
     }
   },
 };
