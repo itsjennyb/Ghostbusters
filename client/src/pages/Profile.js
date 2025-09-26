@@ -18,9 +18,11 @@ const Profile = () => {
     const navigate = useNavigate();
 
     if (error) return `Error! ${error}`;
-    if (loading || !data.me || !data.me.profile || !data.me.preference) {
-        refetch();
-        return navigate('/createprofile')
+    if (loading || !data?.me) {
+        return <div>Loading...</div>;
+    }
+    if (!data.me.profile || !data.me.preference) {
+        return navigate('/createprofile');
     }
     const me = data.me;
     const profile = data.me.profile;

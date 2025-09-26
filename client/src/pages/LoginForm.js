@@ -105,6 +105,7 @@ const LoginForm = () => {
                 required: true,
               })}
               placeholder="Email Address"
+              onKeyDown={(e) => e.key === 'Enter' && handleSubmit(loginSubmit)()}
             />
             {errors.email && <small className='loginSmall'>This field is required</small>}
 
@@ -113,6 +114,7 @@ const LoginForm = () => {
               type="password"
               {...register("password", {required: true})}
               placeholder="Password"
+              onKeyDown={(e) => e.key === 'Enter' && handleSubmit(loginSubmit)()}
             />
             {errors.password && <small className='loginSmall'>This field is required</small>}
 

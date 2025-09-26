@@ -26,7 +26,7 @@ const Matches = () => {
             <Header title="my matches" />
             <div className="matches">
                 {matchesExist ? (
-                    matches.map((match) => (<MatchCard key={match._id} user={match._id} />))
+                    matches.map((matchId) => (<MatchCard key={matchId} user={matchId} />))
                 ) : (
                     <h4 className="noMatches">Sorry! No Matches Yet!</h4>
                 )}
