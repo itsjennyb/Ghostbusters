@@ -1,32 +1,41 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useQuery } from '@apollo/client';
 import { GET_ME } from '../utils/queries';
 import MatchCard from '../components/MatchCard';
-import Header from '../components/Header'
-import Auth from '../utils/auth'
-import { Navigate } from 'react-router-dom'
+import Header from '../components/Header';
+import Auth from '../utils/auth';
+import { Navigate } from 'react-router-dom';
 
 const Matches = () => {
 
-    const { loading, data } = useQuery(GET_ME);
-    const me = data?.me || {};
-    const matches = me.matches
-    const [matchesExist, setMatchesExist] = useState(false)
+    const loggedIn = Auth.loggedIn();
+    const { loading, data } = useQuery(GET_ME, {
+        skip: !loggedIn,
+    });
 
-    useEffect(() => {
-        if (!loading && matches.length > 0) {
-            setMatchesExist(true)
-            console.log(matches)
-        }
-    }, [matches])
+    if (!loggedIn) {
+        return <Navigate to='/login' />;
+    }
+
+    if (loading) {
+        return <div>Loading...</div>;
+    }
+
+    const me = data?.me || {};
+    const matches = me.matches ?? [];
+
+    const renderMatches = matches
+        .map((match) => (typeof match === 'string' ? match : match?._id))
+        .filter(Boolean);
 
     return (
         <div className='contentContainer'>
-            {!Auth.loggedIn() && <Navigate to='/login' />}
             <Header title="my matches" />
             <div className="matches">
-                {matchesExist ? (
-                    matches.map((matchId) => (<MatchCard key={matchId} user={matchId} />))
+                {renderMatches.length ? (
+                    renderMatches.map((matchId) => (
+                        <MatchCard key={matchId} userId={matchId} />
+                    ))
                 ) : (
                     <h4 className="noMatches">Sorry! No Matches Yet!</h4>
                 )}

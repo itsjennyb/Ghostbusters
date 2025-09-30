@@ -25,6 +25,8 @@ const ProfileForm = () => {
         try {
             const { data } = await addProfile({
                 variables: { profile },
+                refetchQueries: [{ query: GET_ME }],
+                awaitRefetchQueries: true,
             });
             if (data) {
                 navigate('/preferences');
