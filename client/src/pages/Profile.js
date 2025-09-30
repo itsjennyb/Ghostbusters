@@ -4,9 +4,7 @@ import { useQuery } from '@apollo/client';
 import { GET_ME } from '../utils/queries';
 import Header from '../components/Header';
 import ProfileCard from '../components/ProfileCard';
-import { Link, Navigate, useNavigate } from 'react-router-dom';
-
-
+import { Link, Navigate } from 'react-router-dom';
 
 const Profile = () => {
 
@@ -14,19 +12,31 @@ const Profile = () => {
         Auth.logout();
     };
 
-    const { loading, data, error, refetch } = useQuery(GET_ME);
-    const navigate = useNavigate();
+    const { loading, data, error } = useQuery(GET_ME, {
+        fetchPolicy: 'cache-and-network',
+        nextFetchPolicy: 'cache-first',
+    });
 
-    if (error) return `Error! ${error}`;
-    if (loading || !data?.me) {
+    if (error) {
+        return <div>Error! {error.message}</div>;
+    }
+
+    const me = data?.me;
+
+    if (loading && !me) {
         return <div>Loading...</div>;
     }
-    if (!data.me.profile || !data.me.preference) {
-        return navigate('/createprofile');
+
+    if (!loading && me && (!me.profile || !me.preference)) {
+        return <Navigate to='/createprofile' replace />;
     }
-    const me = data.me;
-    const profile = data.me.profile;
-    const preference = data.me.preference;
+
+    if (!me) {
+        return <Navigate to='/login' replace />;
+    }
+
+    const profile = me.profile;
+    const preference = me.preference;
 
     return (
         <>

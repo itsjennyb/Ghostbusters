@@ -341,13 +341,31 @@ async function listUsers({ populate = false, depth = DEFAULT_RELATION_DEPTH } = 
     return [];
   }
 
-  const sanitized = items.map((item) => sanitizeUser(ensureUserDefaults(item)));
+  // Group item collection entries by user so we can rebuild full user documents
+  const groupedByUserId = items.reduce((acc, item) => {
+    const userId = item?._id;
+    if (!userId) {
+      return acc;
+    }
+
+    if (!acc[userId]) {
+      acc[userId] = [];
+    }
+
+    acc[userId].push(item);
+    return acc;
+  }, {});
+
+  const reconstructedUsers = Object.values(groupedByUserId)
+    .map((collection) => reconstructUserFromItems(collection))
+    .filter(Boolean)
+    .map(sanitizeUser);
 
   if (!populate) {
-    return sanitized;
+    return reconstructedUsers;
   }
 
-  return Promise.all(sanitized.map((user) => populateUser(user, depth)));
+  return Promise.all(reconstructedUsers.map((user) => populateUser(user, depth)));
 }
 
 async function createUser({ email, password, firstName }) {

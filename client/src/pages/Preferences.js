@@ -6,24 +6,22 @@ import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Auth from '../utils/auth';
 import { ADD_PREFERENCE } from '../utils/mutations';
-import { useQuery } from '@apollo/client';
 import { GET_ME } from '../utils/queries';
 
 const PreferencesForm = () => {
 
   const { register, handleSubmit, formState: {errors} } = useForm();
 
-  const [addPreference, { error, data }] = useMutation(ADD_PREFERENCE);
+  const [addPreference, { error }] = useMutation(ADD_PREFERENCE);
 
   const onSubmit = async (preference, event) => {
     try {
-      const { data } = await addPreference({
+      await addPreference({
         variables: { preference },
+        refetchQueries: [{ query: GET_ME }],
+        awaitRefetchQueries: true,
       });
-      // setFormState(preference);
-      if (data) {
-        navigate('/profile');
-      }
+      navigate('/profile');
     } catch (err) {
       console.error(err)
     }

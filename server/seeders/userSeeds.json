@@ -1,17 +1,182 @@
 [
-    {
-      "email": "cacheme@mail.com",
-      "password": "cacheme",
-      "firstName": "Danielle",
-      "reviews": [
-        {
-          "reviewText": "she kept wanting to fight me",
-          "firstName": "Justin"
-        },
-        {
-          "reviewText": "super rude",
-          "firstName": "Phil"
-        }
+  {
+    "email": "danielle@mail.com",
+    "password": "cacheme",
+    "firstName": "Danielle",
+    "image": "seed-profiles/danielle",
+    "profile": {
+      "age": 31,
+      "gender": "Female",
+      "height": "5'6\"",
+      "work": "Paranormal investigator",
+      "religion": "Spiritual",
+      "politics": "Moderate",
+      "smoking": "Doesn't Smoke",
+      "drinking": "Drinks",
+      "bio": "Lead investigator focused on making specter-free living spaces."
+    },
+    "preference": {
+      "minAge": 28,
+      "maxAge": 40,
+      "gender": "Male",
+      "minHeight": "5'8\"",
+      "maxHeight": "6'3\"",
+      "religion": "Spiritual",
+      "politics": "Moderate",
+      "smoking": "Doesn't Smoke",
+      "drinking": "Drinks"
+    },
+    "likes": ["peter@mail.com", "ray@mail.com"],
+    "reviews": [
+      {
+        "reviewText": "Danielle saved my haunted brownstone in under an hour.",
+        "reviewerEmail": "peter@mail.com"
+      },
+      {
+        "reviewText": "Thorough and fearless when the ectoplasm hits the fan.",
+        "reviewerEmail": "ray@mail.com"
+      }
     ]
-    }
+  },
+  {
+    "email": "peter@mail.com",
+    "password": "cacheme",
+    "firstName": "Peter",
+    "image": "seed-profiles/peter",
+    "profile": {
+      "age": 34,
+      "gender": "Male",
+      "height": "6'0\"",
+      "work": "Field team lead",
+      "religion": "Spiritual",
+      "politics": "Moderate",
+      "smoking": "Doesn't Smoke",
+      "drinking": "Drinks",
+      "bio": "Snarky but reliable point-man when ghosts need busting."
+    },
+    "preference": {
+      "minAge": 27,
+      "maxAge": 38,
+      "gender": "Female",
+      "minHeight": "5'2\"",
+      "maxHeight": "5'11\"",
+      "religion": "Spiritual",
+      "politics": "Moderate",
+      "smoking": "Doesn't Smoke",
+      "drinking": "Drinks"
+    },
+    "likes": ["danielle@mail.com"],
+    "reviews": [
+      {
+        "reviewText": "Always field-ready with a quip and a proton pack.",
+        "reviewerEmail": "danielle@mail.com"
+      }
+    ]
+  },
+  {
+    "email": "ray@mail.com",
+    "password": "cacheme",
+    "firstName": "Ray",
+    "image": "seed-profiles/ray",
+    "profile": {
+      "age": 32,
+      "gender": "Male",
+      "height": "5'11\"",
+      "work": "Equipment designer",
+      "religion": "Spiritual",
+      "politics": "Moderate",
+      "smoking": "Doesn't Smoke",
+      "drinking": "Doesn't Drink",
+      "bio": "Geeks out over specter tech and brings optimism to every bust."
+    },
+    "preference": {
+      "minAge": 26,
+      "maxAge": 36,
+      "gender": "Female",
+      "minHeight": "5'0\"",
+      "maxHeight": "6'0\"",
+      "religion": "Spiritual",
+      "politics": "Moderate",
+      "smoking": "Doesn't Smoke",
+      "drinking": "Doesn't Drink"
+    },
+    "likes": ["danielle@mail.com"],
+    "reviews": [
+      {
+        "reviewText": "Ray keeps the gear humming and the ghosts running.",
+        "reviewerEmail": "peter@mail.com"
+      }
+    ]
+  },
+  {
+    "email": "egon@mail.com",
+    "password": "cacheme",
+    "firstName": "Egon",
+    "image": "seed-profiles/egon",
+    "profile": {
+      "age": 35,
+      "gender": "Male",
+      "height": "6'2\"",
+      "work": "Paranormal scientist",
+      "religion": "Agnostic/Atheist",
+      "politics": "Moderate",
+      "smoking": "Doesn't Smoke",
+      "drinking": "Doesn't Drink",
+      "bio": "Data-first scientist cataloging every ectoplasmic anomaly in NYC."
+    },
+    "preference": {
+      "minAge": 30,
+      "maxAge": 40,
+      "gender": "Female",
+      "minHeight": "5'4\"",
+      "maxHeight": "6'2\"",
+      "religion": "Agnostic/Atheist",
+      "politics": "Moderate",
+      "smoking": "Doesn't Smoke",
+      "drinking": "Doesn't Drink"
+    },
+    "likes": ["janine@mail.com"],
+    "dislikes": ["danielle@mail.com"],
+    "reviews": [
+      {
+        "reviewText": "Clinical and precise—bring a spreadsheet to the date.",
+        "firstName": "Anonymous"
+      }
+    ]
+  },
+  {
+    "email": "janine@mail.com",
+    "password": "cacheme",
+    "firstName": "Janine",
+    "image": "seed-profiles/janine",
+    "profile": {
+      "age": 29,
+      "gender": "Female",
+      "height": "5'4\"",
+      "work": "Operations coordinator",
+      "religion": "Spiritual",
+      "politics": "Liberal",
+      "smoking": "Doesn't Smoke",
+      "drinking": "Drinks",
+      "bio": "Keeps the team scheduled and the clients calm when ghosts go wild."
+    },
+    "preference": {
+      "minAge": 28,
+      "maxAge": 38,
+      "gender": "Male",
+      "minHeight": "5'6\"",
+      "maxHeight": "6'4\"",
+      "religion": "Spiritual",
+      "politics": "Moderate",
+      "smoking": "Doesn't Smoke",
+      "drinking": "Drinks"
+    },
+    "likes": ["egon@mail.com"],
+    "reviews": [
+      {
+        "reviewText": "Janine is the glue that keeps the whole crew booked and busy.",
+        "reviewerEmail": "danielle@mail.com"
+      }
+    ]
+  }
 ]
