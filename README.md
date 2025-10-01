@@ -29,7 +29,12 @@ Sign up with first name, email address, and password. Click the profile icon to 
 - (Optional but recommended) Add a GSI on the `email` attribute named `email-index` and expose it with `USERS_EMAIL_INDEX`.
 - Start the API with `npm run start` from the `server` directory once the table is available.
 - Seed sample users with `node server/seeders/seed.js` after configuring the table and credentials.
- 
+
+### Frontend Configuration
+- When hosting the React bundle from static storage (for example, S3) set `REACT_APP_GRAPHQL_URI` to the fully qualified GraphQL endpoint for the backend (e.g. `https://api.example.com/graphql`).
+- Alternatively, set `REACT_APP_BACKEND_URL` to the backend origin (e.g. `https://api.example.com`) and `REACT_APP_GRAPHQL_PATH` if the route differs from the default `/graphql`.
+- Without these variables the client falls back to `/graphql`, which only works when the frontend and backend share the same origin.
+
 ## Contributing
 [Justin Watkins](https://github.com/JWatkins28), [Rashida Kapadia](https://github.com/rashida53), [Jenny Blacutt](https://github.com/itsjennyb), [Alex Berger](https://github.com/aberger3647)
 
