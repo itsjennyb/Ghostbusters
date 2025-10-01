@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
 require('./config/connection');
 // IMPORT APOLLO SERVER AND OUR TYPEDEFS/RESOLVERS
 const { ApolloServer } = require('apollo-server-express');
@@ -19,15 +20,22 @@ const server = new ApolloServer({
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
-// if we're in production, serve client/build as static assets
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../client/build')));
-}
+const clientBuildPath = path.join(__dirname, '../client/build');
+const serveClient = process.env.SERVE_CLIENT !== 'false'
+  && fs.existsSync(path.join(clientBuildPath, 'index.html'));
 
-// REDIRECT BAD URLS TO THE HOMEPAGE
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/build/index.html'))
-})
+if (serveClient) {
+  app.use(express.static(clientBuildPath));
+
+  // Redirect unhandled routes to the React app when client assets are available
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(clientBuildPath, 'index.html'));
+  });
+} else {
+  app.get('/', (_req, res) => {
+    res.status(200).json({ status: 'ok' });
+  });
+}
 
 // START THE APOLLO SERVER USING EXPRESS AS OUR MIDDLEWARE
 const startApolloServer = async (typeDefs, resolvers) => {

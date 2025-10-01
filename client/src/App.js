@@ -19,9 +19,39 @@ import EditPreferences from './pages/EditPreferences';
 
 import Upload from './components/Upload'
 
+// Normalise configuration for the GraphQL endpoint so the app can run from static hosting
+const resolveGraphqlUri = () => {
+  const directUri = (process.env.REACT_APP_GRAPHQL_URI || '').trim();
+  if (directUri) {
+    return directUri;
+  }
+
+  const backendBase = (
+    process.env.REACT_APP_BACKEND_URL ||
+    process.env.REACT_APP_API_URL ||
+    ''
+  ).trim();
+
+  const configuredPath = (process.env.REACT_APP_GRAPHQL_PATH || '/graphql').trim();
+  const path = configuredPath ? configuredPath : '/graphql';
+
+  if (/^https?:\/\//i.test(path)) {
+    return path;
+  }
+
+  const normalisedPath = path.startsWith('/') ? path : `/${path}`;
+
+  if (backendBase) {
+    const normalisedBase = backendBase.replace(/\/+$/, '');
+    return `${normalisedBase}${normalisedPath}`;
+  }
+
+  return normalisedPath;
+};
+
 // SETTING UP THE HTTP LINK
 const httpLink = createHttpLink({
-  uri: '/graphql',
+  uri: resolveGraphqlUri(),
 });
 
 // SETTING UP THE CONTEXT
