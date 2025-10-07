@@ -48,5 +48,10 @@ const startApolloServer = async (typeDefs, resolvers) => {
   });
 }
 
+// SIMPLE HEALTH CHECK ENDPOINT
+app.get('/healthz', (req, res) => {
+  res.status(200).send('OK');
+});
+
 // START THE APOLLO SERVER
 startApolloServer(typeDefs, resolvers);
