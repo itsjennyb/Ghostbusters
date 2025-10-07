@@ -1,11 +1,11 @@
-FROM node:20-bullseye-slim AS base
+FROM --platform=linux/amd64 node:20-bullseye-slim AS base
 
 
 # Install build dependencies for bcrypt
 RUN apt-get update && \
     apt-get install -y python3 make g++ && \
     rm -rf /var/lib/apt/lists/*
-    
+
 # Install app dependencies
 WORKDIR /usr/src/app
 
