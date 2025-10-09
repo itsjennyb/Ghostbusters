@@ -4,7 +4,8 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest --runInBand",
+    "test:watch": "jest --watch",
     "start": "node server.js",
     "watch": "nodemon server.js",
     "setup-dynamodb": "node scripts/setup-dynamodb.js",
@@ -20,6 +21,7 @@
     "bcrypt": "^5.0.0",
     "express": "^4.17.1",
     "graphql": "^16.3.0",
+    "@vendia/serverless-express": "^4.12.6",
     "jsonwebtoken": "^8.5.1",
     "uuid": "^13.0.0"
   },
@@ -27,6 +29,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "nodemon": "^2.0.3"
+    "nodemon": "^2.0.3",
+    "jest": "^29.7.0"
   }
 }

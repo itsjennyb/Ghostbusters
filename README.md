@@ -30,6 +30,16 @@ Sign up with first name, email address, and password. Click the profile icon to 
 - Start the API with `npm run start` from the `server` directory once the table is available.
 - Seed sample users with `node server/seeders/seed.js` after configuring the table and credentials.
 
+### Backend Deployment (AWS Lambda)
+- The Express/Apollo server now runs behind an AWS Lambda function (API Gateway proxy). The Lambda entry point is exported from `server/lambda.js` as `lambda.handler`.
+- Build the container image with the provided Lambda-compatible `Dockerfile`:
+  - `docker build -t ghostbusters-backend server`
+  - `docker tag ghostbusters-backend:latest <aws_account_id>.dkr.ecr.<region>.amazonaws.com/ghostbusters-backend:latest`
+  - `docker push <aws_account_id>.dkr.ecr.<region>.amazonaws.com/ghostbusters-backend:latest`
+- Create or update the Lambda function to use the pushed container image. Expose it through an HTTP API Gateway with a default proxy route so that `/graphql`, `/healthz`, and static fallbacks map correctly.
+- Environment variables from the previous Fargate setup continue to apply (for example `USERS_TABLE`, `USERS_EMAIL_INDEX`, authentication secrets, etc.). Configure them on the Lambda function.
+- Run `npm test` (or `npm --prefix server test`) before deploying to confirm the Lambda handler and Express bridge pass the integration checks.
+
 ### Frontend Configuration
 - When hosting the React bundle from static storage (for example, S3) set `REACT_APP_GRAPHQL_URI` to the fully qualified GraphQL endpoint for the backend (e.g. `https://api.example.com/graphql`).
 - Alternatively, set `REACT_APP_BACKEND_URL` to the backend origin (e.g. `https://api.example.com`) and `REACT_APP_GRAPHQL_PATH` if the route differs from the default `/graphql`.
