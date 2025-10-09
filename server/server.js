@@ -1,57 +1,21 @@
-const express = require('express');
-const path = require('path');
-const fs = require('fs');
-require('./config/connection');
-// IMPORT APOLLO SERVER AND OUR TYPEDEFS/RESOLVERS
-const { ApolloServer } = require('apollo-server-express');
-const { typeDefs, resolvers } = require('./schemas')
-const { authMiddleware } = require('./utils/auth')
+const { createApp, getApolloServer } = require('./app');
 
-const app = express();
 const PORT = process.env.PORT || 3001;
 
-// CREATE THE APOLLO SERVER WITH OUR TYPEDEFS/RESOLVERS AND CONTEXT
-const server = new ApolloServer({
-  typeDefs,
-  resolvers,
-  context: authMiddleware,
-});
+async function startServer() {
+  const app = await createApp();
+  const apolloServer = await getApolloServer();
 
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
-
-const clientBuildPath = path.join(__dirname, '../client/build');
-const serveClient = process.env.SERVE_CLIENT !== 'false'
-  && fs.existsSync(path.join(clientBuildPath, 'index.html'));
-
-if (serveClient) {
-  app.use(express.static(clientBuildPath));
-
-  // Redirect unhandled routes to the React app when client assets are available
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(clientBuildPath, 'index.html'));
-  });
-} else {
-  app.get('/', (_req, res) => {
-    res.status(200).json({ status: 'ok' });
-  });
-}
-
-// START THE APOLLO SERVER USING EXPRESS AS OUR MIDDLEWARE
-const startApolloServer = async (typeDefs, resolvers) => {
-  await server.start();
-  server.applyMiddleware({ app });
-
-  app.listen(PORT, '0.0.0.0',() => {
+  app.listen(PORT, '0.0.0.0', () => {
     console.log(`API server running on port ${PORT}!`);
-    console.log(`Use GraphQL at http://0.0.0.0:${PORT}${server.graphqlPath}`)
+    console.log(`Use GraphQL at http://0.0.0.0:${PORT}${apolloServer.graphqlPath}`);
   });
 }
 
-// SIMPLE HEALTH CHECK ENDPOINT
-app.get('/healthz', (req, res) => {
-  res.status(200).send('OK');
-});
+if (require.main === module) {
+  startServer();
+}
 
-// START THE APOLLO SERVER
-startApolloServer(typeDefs, resolvers);
+module.exports = {
+  startServer,
+};
