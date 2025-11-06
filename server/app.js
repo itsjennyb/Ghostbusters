@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
+const cors = require('cors');
 
 require('./config/connection');
 
@@ -29,6 +30,12 @@ async function createApp() {
   if (!appPromise) {
     appPromise = (async () => {
       const app = express();
+
+      //cors config
+      app.use(cors({
+        origin: 'https://d21774mc1dpxvk.cloudfront.net/', //*, or cloudfront domain
+        credentials: true,
+      }));
 
       app.use(express.urlencoded({ extended: false }));
       app.use(express.json());
