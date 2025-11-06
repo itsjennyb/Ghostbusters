@@ -12,12 +12,7 @@ async function getServerlessHandler() {
   return serverlessHandler;
 }
 
-async function handler(event, context) {
+exports.handler = async (event, context) => {
   const handlerInstance = await getServerlessHandler();
   return handlerInstance(event, context);
-}
-
-module.exports = {
-  getServerlessHandler,
-  handler,
 };
