@@ -33,9 +33,14 @@ async function createApp() {
 
       //cors config
       app.use(cors({
-        origin: 'https://d21774mc1dpxvk.cloudfront.net/', //*, or cloudfront domain
+        origin: 'https://d21774mc1dpxvk.cloudfront.net/',
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization'],
         credentials: true,
       }));
+
+      //handle preflight OPTIONS requests
+      app.options('*', cors());
 
       app.use(express.urlencoded({ extended: false }));
       app.use(express.json());
