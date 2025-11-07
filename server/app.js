@@ -33,20 +33,11 @@ async function createApp() {
 
       //cors config
       app.use(cors({
-        origin: 'https://d21774mc1dpxvk.cloudfront.net',
-        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-        allowedHeaders: ['Content-Type', 'Authorization'],
+        origin: '*',
         credentials: true,
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization']
       }));
-
-      //handle preflight OPTIONS requests
-      app.options('*', (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', 'https://d21774mc1dpxvk.cloudfront.net');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.sendStatus(200);
-});
 
       app.use(express.urlencoded({ extended: false }));
       app.use(express.json());
@@ -72,7 +63,11 @@ async function createApp() {
       }
 
       const server = await getApolloServer();
-      server.applyMiddleware({ app });
+      server.applyMiddleware({
+        app,
+        path: '/default/graphql',
+        cors: false // Express CORS middleware is already handling it
+      });
 
       return app;
     })();
