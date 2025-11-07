@@ -8,7 +8,7 @@ const clientConfig = { region };
 
 // Use dynamo-mcp profile in development
 if (process.env.NODE_ENV !== 'production') {
-  clientConfig.credentials = fromIni({ profile: 'default' });
+  clientConfig.credentials = fromIni({ profile: 'dynamo-mcp' });
 }
 
 if (process.env.DYNAMODB_ENDPOINT) {
