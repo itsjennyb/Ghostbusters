@@ -6,6 +6,14 @@ let serverlessHandler;
 async function getServerlessHandler() {
   if (!serverlessHandler) {
     const app = await createApp();
+
+    app.use((req, res, next) => {
+      if (req.url.startsWith('/default')) {
+        req.url = req.url.replace('/default', '');
+      }
+      next();
+    });
+
     serverlessHandler = serverlessExpress({ app });
   }
 
