@@ -31,9 +31,9 @@ async function createApp() {
     appPromise = (async () => {
       const app = express();
 
-      //cors config
+      // ✅ CORS configuration
       app.use(cors({
-        origin: '*',
+        origin: '*', // OR your frontend URL like 'https://d21774mc1dpxvk.cloudfront.net'
         credentials: true,
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
         allowedHeaders: ['Content-Type', 'Authorization']
@@ -42,10 +42,12 @@ async function createApp() {
       app.use(express.urlencoded({ extended: false }));
       app.use(express.json());
 
+      // ✅ Health check
       app.get('/healthz', (_req, res) => {
         res.status(200).send('OK');
       });
 
+      // ✅ Serve client app if build exists
       const clientBuildPath = path.join(__dirname, '../client/build');
       const serveClient = process.env.SERVE_CLIENT !== 'false'
         && fs.existsSync(path.join(clientBuildPath, 'index.html'));
@@ -62,11 +64,12 @@ async function createApp() {
         });
       }
 
+      // ✅ Attach Apollo middleware (AFTER CORS)
       const server = await getApolloServer();
       server.applyMiddleware({
         app,
         path: '/graphql',
-        cors: false // Express CORS middleware is already handling it
+        cors: false, // Let express handle CORS
       });
 
       return app;
