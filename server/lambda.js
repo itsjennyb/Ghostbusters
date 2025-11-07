@@ -13,6 +13,7 @@ async function getServerlessHandler() {
 }
 
 exports.handler = async (event, context) => {
+  console.log("LAMBDA RECEIVED:", event.httpMethod, event.path);
   const handlerInstance = await getServerlessHandler();
   return handlerInstance(event, context);
 };
