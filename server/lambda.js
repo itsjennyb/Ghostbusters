@@ -1,4 +1,4 @@
-const serverlessExpress = require('@vendia/serverless-express');
+const {default: serverlessExpress } = require('@vendia/serverless-express');
 const { createApp } = require('./app');
 
 let serverlessHandler;
@@ -13,7 +13,7 @@ async function getServerlessHandler() {
 }
 
 exports.handler = async (event, context) => {
-  console.log("LAMBDA RECEIVED:", event.httpMethod, event.path);
+  console.log("LAMBDA RECEIVED:", event.requestContext?.http?.method, event.requestContext?.http?.path);
   const handlerInstance = await getServerlessHandler();
   return handlerInstance(event, context);
 };
