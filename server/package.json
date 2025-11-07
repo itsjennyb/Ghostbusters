@@ -17,11 +17,11 @@
     "@aws-sdk/client-dynamodb": "^3.894.0",
     "@aws-sdk/credential-providers": "^3.896.0",
     "@aws-sdk/lib-dynamodb": "^3.894.0",
+    "@vendia/serverless-express": "^4.12.6",
     "apollo-server-express": "^3.6.2",
     "bcrypt": "^5.0.0",
     "express": "^4.17.1",
     "graphql": "^16.3.0",
-    "@vendia/serverless-express": "^4.12.6",
     "jsonwebtoken": "^8.5.1",
     "uuid": "^13.0.0"
   },
@@ -29,7 +29,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "nodemon": "^2.0.3",
-    "jest": "^29.7.0"
+    "jest": "^29.7.0",
+    "nodemon": "^2.0.3"
   }
 }
