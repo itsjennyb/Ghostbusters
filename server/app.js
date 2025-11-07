@@ -65,7 +65,7 @@ async function createApp() {
       const server = await getApolloServer();
       server.applyMiddleware({
         app,
-        path: '/default/graphql',
+        path: '/graphql',
         cors: false // Express CORS middleware is already handling it
       });
 
