@@ -3,7 +3,7 @@ name: Deploy Frontend to S3
 on:
   push:
     branches:
-      - terraform-ghactions
+      - dev
     paths:
       - 'client/**'
   workflow_dispatch:

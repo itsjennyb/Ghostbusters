@@ -3,7 +3,7 @@ name: Deploy Lambda API and Infra via Terraform
 on:
   push:
     branches:
-      - terraform-ghactions
+      - dev
   workflow_dispatch:
 
 jobs:
