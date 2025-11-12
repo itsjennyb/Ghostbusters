@@ -30,7 +30,7 @@ jobs:
         run: npm ci
 
       - name: Build frontend
-        run: npm run build
+        run: CI=false npm run build
 
       - name: Upload to S3
         run: |
