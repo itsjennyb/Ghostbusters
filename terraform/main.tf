@@ -6,6 +6,10 @@ resource "random_id" "suffix" {
   byte_length = 4
 }
 
+resource "random_id" "api_suffix" {
+  byte_length = 4
+}
+
 terraform {
   required_providers {
     aws = {
