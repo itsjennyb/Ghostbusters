@@ -133,7 +133,7 @@ resource "aws_apigatewayv2_route" "default" {
 }
 
 resource "aws_lambda_permission" "apigw" {
-  statement_id  = "AllowAPIGatewayInvoke-${var.environment}"
+  statement_id  = "AllowAPIGatewayInvoke-${var.environment}-${random_id.api_suffix.hex}"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.backend.function_name
   principal     = "apigateway.amazonaws.com"
