@@ -2,6 +2,10 @@ resource "random_id" "bucket_suffix" {
   byte_length = 4
 }
 
+resource "random_id" "suffix" {
+  byte_length = 4
+}
+
 terraform {
   required_providers {
     aws = {
@@ -104,7 +108,7 @@ resource "aws_lambda_function" "backend" {
 }
 
 resource "aws_apigatewayv2_api" "api" {
-  name          = "ghostbusters-lambda-API"
+  name          = "ghostbusters-lambda-API-${var.environment}-${random_id.suffix.hex}"
   protocol_type = "HTTP"
 }
 
