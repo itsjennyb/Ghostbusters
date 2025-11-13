@@ -1,15 +1,3 @@
-resource "random_id" "bucket_suffix" {
-  byte_length = 4
-}
-
-resource "random_id" "suffix" {
-  byte_length = 4
-}
-
-resource "random_id" "api_suffix" {
-  byte_length = 4
-}
-
 terraform {
   required_providers {
     aws = {
@@ -29,7 +17,7 @@ provider "aws" {
 }
 
 resource "aws_s3_bucket" "frontend" {
-  bucket = "${var.frontend_bucket_name}-${var.environment}-${random_id.bucket_suffix.hex}"
+  bucket = "${var.frontend_bucket_name}-${var.environment}"
   force_destroy = true
 }
 
@@ -112,7 +100,7 @@ resource "aws_lambda_function" "backend" {
 }
 
 resource "aws_apigatewayv2_api" "api" {
-  name          = "ghostbusters-lambda-API-${var.environment}-${random_id.suffix.hex}"
+  name          = "ghostbusters-lambda-API-${var.environment}"
   protocol_type = "HTTP"
 }
 
@@ -137,7 +125,7 @@ resource "aws_apigatewayv2_route" "default" {
 }
 
 resource "aws_lambda_permission" "apigw" {
-  statement_id  = "AllowAPIGatewayInvoke-${var.environment}-${random_id.api_suffix.hex}"
+  statement_id  = "AllowAPIGatewayInvoke-${var.environment}"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.backend.function_name
   principal     = "apigateway.amazonaws.com"
