@@ -9,3 +9,7 @@ output "api_gateway_url" {
 output "frontend_bucket_name_actual" {
   value = aws_s3_bucket.frontend.bucket
 }
+
+output "cloudfront_url" {
+  value = "https://${aws_cloudfront_distribution.frontend.domain_name}"
+}
