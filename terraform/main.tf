@@ -67,6 +67,8 @@ resource "aws_s3_object" "frontend_assets" {
     "jpg"  = "image/jpeg"
     "svg"  = "image/svg+xml"
   }, split(".", each.value)[length(split(".", each.value)) - 1], "application/octet-stream")
+
+  depends_on = [aws_s3_bucket.frontend, aws_s3_bucket_website_configuration.frontend]
 }
 
 resource "aws_iam_role" "lambda_exec" {
