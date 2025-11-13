@@ -13,7 +13,7 @@ provider "aws" {
 }
 
 resource "aws_s3_bucket" "frontend" {
-  bucket = var.frontend_bucket_name
+  bucket = "${var.frontend_bucket_name}-${var.environment}"
   force_destroy = true
 }
 
@@ -87,7 +87,7 @@ resource "aws_iam_role_policy_attachment" "lambda_logs" {
 }
 
 resource "aws_lambda_function" "backend" {
-  function_name = "ghostbusters-lambda"
+  function_name = "${var.lambda_function_name}-${var.environment}"
   role          = aws_iam_role.lambda_exec.arn
   package_type  = "Image"
   image_uri     = "888178230099.dkr.ecr.us-east-1.amazonaws.com/ghostbusters-lambda@sha256:aa943ef8b9b5ccc207854f6287aeee021ae9d77520b944ede11ef82ca1e2f98a"
