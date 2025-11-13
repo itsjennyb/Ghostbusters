@@ -1,3 +1,7 @@
+resource "random_id" "bucket_suffix" {
+  byte_length = 4
+}
+
 terraform {
   required_providers {
     aws = {
@@ -13,7 +17,7 @@ provider "aws" {
 }
 
 resource "aws_s3_bucket" "frontend" {
-  bucket = "${var.frontend_bucket_name}-${var.environment}"
+  bucket = "${var.frontend_bucket_name}-${var.environment}-${random_id.bucket_suffix.hex}"
   force_destroy = true
 }
 
