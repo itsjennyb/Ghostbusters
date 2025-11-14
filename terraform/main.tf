@@ -97,7 +97,7 @@ resource "aws_lambda_function" "backend" {
   function_name = "${var.lambda_function_name}-${var.environment}"
   role          = aws_iam_role.lambda_exec.arn
   package_type  = "Image"
-  image_uri     = "888178230099.dkr.ecr.us-east-1.amazonaws.com/ghostbusters-lambda@sha256:aa943ef8b9b5ccc207854f6287aeee021ae9d77520b944ede11ef82ca1e2f98a"
+  image_uri     = "888178230099.dkr.ecr.us-east-1.amazonaws.com/ghostbusters-lambda@sha256:78c440fa553d36eb569e07279219ebb1c29da4a4fc3569ee4813a56b6b3eb012"
   timeout       = 10
 }
 
