@@ -30,7 +30,9 @@ const resolvers = {
   Mutation: {
 
     login: async (parent, args) => {
+      console.log("LOGIN ATTEMPT:", args.email); //added to find bug
       const userForAuth = await UserRepository.getUserForAuthByEmail(args.email);
+      console.log("USER LOOKUP RESULTS:", userForAuth); //added to find bug
 
       if (!userForAuth) {
         throw new AuthenticationError('User not found by that email.');

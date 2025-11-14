@@ -223,6 +223,7 @@ async function getUserRecordByEmail(email) {
   if (!email) {
     return null;
   }
+  console.log("QUERYING EMAIL:", email); //finding bug
 
 
   try {
@@ -237,6 +238,9 @@ async function getUserRecordByEmail(email) {
     });
 
     const response = await documentClient.send(command);
+
+    console.log("DDB RESPONSE:", response.Items); //bugging
+    
     const [item] = response.Items || [];
 
     if (!item) {
