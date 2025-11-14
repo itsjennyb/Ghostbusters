@@ -252,3 +252,35 @@ resource "aws_iam_role_policy_attachment" "lambda_dynamodb" {
 }
 
 data "aws_caller_identity" "current" {}
+
+resource "aws_dynamodb_table" "users" {
+  name         = "GhostbustersUsers"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "_id"
+  range_key    = "sk"
+
+  attribute {
+    name = "_id"
+    type = "S"
+  }
+
+  attribute {
+    name = "sk"
+    type = "S"
+  }
+
+  attribute {
+    name = "email"
+    type = "S"
+  }
+
+  global_secondary_index {
+    name            = "EmailIndex"
+    hash_key        = "email"
+    projection_type = "ALL" # fixes login issue
+  }
+
+  tags = {
+    Environment = var.environment
+  }
+}
