@@ -129,11 +129,17 @@ resource "aws_apigatewayv2_integration" "lambda" {
   payload_format_version = "2.0"
 }
 
-resource "aws_apigatewayv2_route" "default" {
+resource "aws_apigatewayv2_route" "graphql_post" {
   api_id    = aws_apigatewayv2_api.api.id
-  route_key = "ANY /graphql"
+  route_key = "POST /graphql"
   target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
 }
+# BUG?
+# resource "aws_apigatewayv2_route" "default" {
+#   api_id    = aws_apigatewayv2_api.api.id
+#   route_key = "ANY /graphql"
+#   target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
+# }
 
 resource "aws_lambda_permission" "apigw" {
   statement_id  = "AllowAPIGatewayInvoke-${var.environment}"
