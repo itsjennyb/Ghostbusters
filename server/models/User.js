@@ -331,17 +331,23 @@ async function getUserByEmail(email, { populate = false, depth = DEFAULT_RELATIO
 
   return populate ? populateUser(record, depth) : sanitizeUser(record);
 }
-/// fixing bug ///////////////////////////////////////////////
-const AWS = require("aws-sdk");
-const docClient = new AWS.DynamoDB.DocumentClient();
+
+// FIXED: Replaced aws-sdk with AWS SDK v3 modules
+const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
+const { DynamoDBDocumentClient, QueryCommand } = require('@aws-sdk/lib-dynamodb');
+
+const docClient = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 
 async function getUserForAuthByEmail(email) {
-    console.log("🔍 getUserForAuthByEmail called with email:", email);
+  console.log("🔍 getUserForAuthByEmail called with email:", email);
 
   const params = {
-    TableName: "GhostbustersUsers",
-    IndexName: "EmailIndex",
-    KeyConditionExpression: "email = :email",
+    TableName: USERS_TABLE,
+    IndexName: USERS_EMAIL_INDEX,
+    KeyConditionExpression: "#email = :email",
+    ExpressionAttributeNames: {
+      "#email": "email",
+    },
     ExpressionAttributeValues: {
       ":email": email,
     },
@@ -350,7 +356,7 @@ async function getUserForAuthByEmail(email) {
   console.log("🧾 DynamoDB query params:", JSON.stringify(params, null, 2));
 
   try {
-    const result = await docClient.query(params).promise();
+    const result = await docClient.send(new QueryCommand(params));
     console.log("📦 DynamoDB query result:", JSON.stringify(result.Items, null, 2));
     return result.Items?.[0] || null;
   } catch (err) {
@@ -358,7 +364,6 @@ async function getUserForAuthByEmail(email) {
     return null;
   }
 }
-
 /////////////////////////////////////////////
 
 async function listUsers({ populate = false, depth = DEFAULT_RELATION_DEPTH } = {}) {
