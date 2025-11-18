@@ -51,26 +51,6 @@ resource "aws_s3_bucket_website_configuration" "frontend" {
 #   })
 # }
 
-resource "aws_s3_object" "frontend_assets" {
-  for_each = fileset("../client/build", "**/*.*")
-
-  bucket = aws_s3_bucket.frontend.id
-  key    = each.value
-  source = "../client/build/${each.value}"
-  etag   = filemd5("../client/build/${each.value}")
-  content_type = lookup({
-    "html" = "text/html"
-    "js"   = "application/javascript"
-    "css"  = "text/css"
-    "json" = "application/json"
-    "png"  = "image/png"
-    "jpg"  = "image/jpeg"
-    "svg"  = "image/svg+xml"
-  }, split(".", each.value)[length(split(".", each.value)) - 1], "application/octet-stream")
-
-  depends_on = [aws_s3_bucket.frontend, aws_s3_bucket_website_configuration.frontend]
-}
-
 resource "aws_iam_role" "lambda_exec" {
   name = "lambda_exec_role-${var.environment}"
 
@@ -97,7 +77,7 @@ resource "aws_lambda_function" "backend" {
   function_name = "${var.lambda_function_name}-${var.environment}"
   role          = aws_iam_role.lambda_exec.arn
   package_type  = "Image"
-  image_uri     = "888178230099.dkr.ecr.us-east-1.amazonaws.com/ghostbusters-lambda@sha256:78c440fa553d36eb569e07279219ebb1c29da4a4fc3569ee4813a56b6b3eb012"
+  image_uri     = "888178230099.dkr.ecr.us-east-1.amazonaws.com/ghostbusters-lambda:latest"
   timeout       = 10
 }
 

@@ -13,3 +13,7 @@ output "frontend_bucket_name_actual" {
 output "cloudfront_url" {
   value = "https://${aws_cloudfront_distribution.frontend.domain_name}"
 }
+
+output "graphql_url" {
+  value = "${aws_apigatewayv2_api.api.api_endpoint}/graphql"
+}
