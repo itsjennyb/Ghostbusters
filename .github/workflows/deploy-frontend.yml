@@ -42,10 +42,10 @@ jobs:
       - name: Upload to S3
         if: ${{ !env.ACT }}
         run: |
-          aws s3 sync build/ s3://ghostbusters-react-front --delete
+          aws s3 sync build/ s3://ghostbusters-react-front-dev --delete
         
       - name: Invalidate CloudFront (optional)
         run: |
           aws cloudfront create-invalidation \
-            --distribution-id E329X3EM98ASJ5 \
+            --distribution-id E1ZZ2PMDYUBT6N \
             --paths "/*"
