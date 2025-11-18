@@ -14,6 +14,20 @@ async function getServerlessHandler() {
 
 exports.handler = async (event, context) => {
   console.log("LAMBDA RECEIVED:", event.requestContext?.http?.method, event.requestContext?.http?.path);
+  
+    // CORS preflight support for API Gateway v2
+  if (event.requestContext?.http?.method === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type,Authorization',
+        'Access-Control-Allow-Methods': 'POST,OPTIONS',
+      },
+      body: '',
+    };
+  }
+
   try {
     const handlerInstance = await getServerlessHandler();
     return await handlerInstance(event, context);
@@ -21,12 +35,12 @@ exports.handler = async (event, context) => {
     console.error("🔥 UNCAUGHT ERROR IN LAMBDA:", err);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "Internal Server Error", detail: err.message }),
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': '*',
         'Access-Control-Allow-Methods': '*'
-      }
+      },
+      body: JSON.stringify({ error: "Internal Server Error", detail: err.message }),
     };
   }
 };
