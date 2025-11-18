@@ -19,6 +19,7 @@
     "@aws-sdk/lib-dynamodb": "^3.894.0",
     "@vendia/serverless-express": "^4.12.6",
     "apollo-server-express": "^3.6.2",
+    "aws-sdk": "^2.1692.0",
     "bcrypt": "^5.0.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
