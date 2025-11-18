@@ -52,6 +52,7 @@ const resolveGraphqlUri = () => {
 // SETTING UP THE HTTP LINK
 const httpLink = createHttpLink({
   uri: resolveGraphqlUri(),
+  useGETForQueries: false,
 });
 
 // SETTING UP THE CONTEXT
