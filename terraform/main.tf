@@ -106,7 +106,7 @@ resource "aws_apigatewayv2_api" "api" {
   protocol_type = "HTTP"
 
   cors_configuration {
-    allow_origins     = ["https://di1k0hz1g0u8v.cloudfront.net"]
+    allow_origins     = ["https://d2jxf1x30eq5sh.cloudfront.net"]
     allow_methods     = ["POST", "OPTIONS"]
     allow_headers     = ["content-type", "authorization"]
     expose_headers    = []
@@ -119,6 +119,17 @@ resource "aws_apigatewayv2_stage" "default" {
   api_id      = aws_apigatewayv2_api.api.id
   name        = "$default"
   auto_deploy = true
+
+    lifecycle {
+    ignore_changes = [
+      deployment_id
+    ]
+  }
+
+  depends_on = [
+  aws_apigatewayv2_route.graphql_post,
+  aws_apigatewayv2_integration.lambda,
+]
 }
 
 resource "aws_apigatewayv2_integration" "lambda" {
