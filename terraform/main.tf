@@ -250,7 +250,10 @@ resource "aws_iam_policy" "lambda_dynamodb_write" {
           "dynamodb:Query",
           "dynamodb:Scan"
         ],
-        Resource = "arn:aws:dynamodb:us-east-1:${data.aws_caller_identity.current.account_id}:table/GhostbustersUsers"
+        Resource = [
+          "arn:aws:dynamodb:us-east-1:${data.aws_caller_identity.current.account_id}:table/GhostbustersUsers",
+          "arn:aws:dynamodb:us-east-1:${data.aws_caller_identity.current.account_id}:table/GhostbustersUsers/index/*"
+        ]
       }
     ]
   })
