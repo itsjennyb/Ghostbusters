@@ -334,7 +334,7 @@ async function getUserByEmail(email, { populate = false, depth = DEFAULT_RELATIO
 
 // FIXED: Replaced aws-sdk with AWS SDK v3 modules
 const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
-const { DynamoDBDocumentClient, QueryCommand } = require('@aws-sdk/lib-dynamodb');
+const { DynamoDBDocumentClient } = require('@aws-sdk/lib-dynamodb');
 
 const docClient = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 
