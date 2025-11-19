@@ -69,11 +69,19 @@ jobs:
           if [ -n "$API_ID" ]; then
             echo "Found API Gateway: $API_ID"
 
-            # Try to import OPTIONS route if it exists
-            terraform import aws_apigatewayv2_route.graphql_options "$API_ID/OPTIONS%2F%2Fgraphql" 2>/dev/null || echo "OPTIONS route import skipped"
+            # Get OPTIONS route ID
+            OPTIONS_ROUTE_ID=$(aws apigatewayv2 get-routes --api-id "$API_ID" --query "Items[?RouteKey=='OPTIONS /graphql'].RouteId" --output text)
+            if [ -n "$OPTIONS_ROUTE_ID" ]; then
+              echo "Importing OPTIONS route: $OPTIONS_ROUTE_ID"
+              terraform import "aws_apigatewayv2_route.graphql_options" "$API_ID/$OPTIONS_ROUTE_ID" || echo "OPTIONS route import failed or already imported"
+            fi
 
-            # Try to import healthz route if it exists
-            terraform import aws_apigatewayv2_route.healthz "$API_ID/GET%2F%2Fhealthz" 2>/dev/null || echo "Healthz route import skipped"
+            # Get healthz route ID
+            HEALTHZ_ROUTE_ID=$(aws apigatewayv2 get-routes --api-id "$API_ID" --query "Items[?RouteKey=='GET /healthz'].RouteId" --output text)
+            if [ -n "$HEALTHZ_ROUTE_ID" ]; then
+              echo "Importing healthz route: $HEALTHZ_ROUTE_ID"
+              terraform import "aws_apigatewayv2_route.healthz" "$API_ID/$HEALTHZ_ROUTE_ID" || echo "Healthz route import failed or already imported"
+            fi
           else
             echo "No existing API Gateway found, will create new resources"
           fi
