@@ -40,9 +40,9 @@ jobs:
           aws-region: us-east-1
 
       - name: Upload to S3
-        if: ${{ !env.ACT }}
         run: |
-          aws s3 sync build/ s3://ghostbusters-react-front-dev --delete
+          echo "Uploading built assets to: ghostbusters-react-front-dev"
+          aws s3 sync ./build s3://ghostbusters-react-front-dev --delete --acl bucket-owner-full-control
         
       - name: Invalidate CloudFront (optional)
         run: |
