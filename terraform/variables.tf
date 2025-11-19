@@ -22,9 +22,9 @@ variable "lambda_function_name" {
   default = "ghostbusters-lambda"
 }
 
-# Existing lambda image URI (unchanged)
-variable "lambda_image_uri" {
-  description = "ECR image URI for lambda container"
-  default = "888178230099.dkr.ecr.us-east-1.amazonaws.com/ghostbusters-lambda@sha256:aa943ef8b9b5ccc207854f6287aeee021ae9d77520b944ede11ef82ca1e2f98a"
+# ECR repository URL for lambda container
+variable "ecr_repository_url" {
+  description = "ECR repository URL for lambda container (without tag)"
+  default = "888178230099.dkr.ecr.us-east-1.amazonaws.com/ghostbusters-lambda"
 }
 

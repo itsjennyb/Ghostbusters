@@ -66,3 +66,12 @@ jobs:
 
       - name: Terraform Apply
         run: terraform apply -auto-approve
+
+      - name: Output Infrastructure URLs
+        run: |
+          echo "====== DEPLOYMENT COMPLETE ======"
+          echo "GraphQL Endpoint: $(terraform output -raw graphql_url)"
+          echo "Health Check: $(terraform output -raw healthz_url)"
+          echo "CloudFront URL: $(terraform output -raw cloudfront_url)"
+          echo "CloudFront Distribution ID: $(terraform output -raw cloudfront_distribution_id)"
+          echo "S3 Bucket: $(terraform output -raw frontend_bucket_name_actual)"

@@ -77,8 +77,8 @@ resource "aws_lambda_function" "backend" {
   function_name = "${var.lambda_function_name}-${var.environment}"
   role          = aws_iam_role.lambda_exec.arn
   package_type  = "Image"
-  image_uri     = "888178230099.dkr.ecr.us-east-1.amazonaws.com/ghostbusters-lambda:latest"
-  timeout       = 10
+  image_uri     = "${var.ecr_repository_url}:latest"
+  timeout       = 30
 }
 
 resource "aws_apigatewayv2_api" "api" {
@@ -86,8 +86,8 @@ resource "aws_apigatewayv2_api" "api" {
   protocol_type = "HTTP"
 
   cors_configuration {
-    allow_origins     = ["https://d2jxf1x30eq5sh.cloudfront.net"]
-    allow_methods     = ["POST", "OPTIONS"]
+    allow_origins     = ["https://${aws_cloudfront_distribution.frontend.domain_name}", "http://localhost:3000"]
+    allow_methods     = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
     allow_headers     = ["content-type", "authorization"]
     expose_headers    = []
     max_age           = 3600
@@ -108,6 +108,8 @@ resource "aws_apigatewayv2_stage" "default" {
 
   depends_on = [
   aws_apigatewayv2_route.graphql_post,
+  aws_apigatewayv2_route.graphql_options,
+  aws_apigatewayv2_route.healthz,
   aws_apigatewayv2_integration.lambda,
 ]
 }
@@ -125,12 +127,18 @@ resource "aws_apigatewayv2_route" "graphql_post" {
   route_key = "POST /graphql"
   target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
 }
-# BUG?
-# resource "aws_apigatewayv2_route" "default" {
-#   api_id    = aws_apigatewayv2_api.api.id
-#   route_key = "ANY /graphql"
-#   target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
-# }
+
+resource "aws_apigatewayv2_route" "graphql_options" {
+  api_id    = aws_apigatewayv2_api.api.id
+  route_key = "OPTIONS /graphql"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
+}
+
+resource "aws_apigatewayv2_route" "healthz" {
+  api_id    = aws_apigatewayv2_api.api.id
+  route_key = "GET /healthz"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
+}
 
 resource "aws_lambda_permission" "apigw" {
   statement_id  = "AllowAPIGatewayInvoke-${var.environment}"

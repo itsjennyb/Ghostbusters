@@ -14,6 +14,16 @@ output "cloudfront_url" {
   value = "https://${aws_cloudfront_distribution.frontend.domain_name}"
 }
 
+output "cloudfront_distribution_id" {
+  value = aws_cloudfront_distribution.frontend.id
+  description = "CloudFront distribution ID for cache invalidation"
+}
+
 output "graphql_url" {
   value = "${aws_apigatewayv2_api.api.api_endpoint}/graphql"
+}
+
+output "healthz_url" {
+  value = "${aws_apigatewayv2_api.api.api_endpoint}/healthz"
+  description = "Health check endpoint URL"
 }
