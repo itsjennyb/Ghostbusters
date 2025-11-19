@@ -28,14 +28,19 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - name: Get Terraform outputs
-        id: terraform
-        working-directory: terraform
+      - name: Get infrastructure values from AWS
+        id: infra
         run: |
-          terraform init
-          CLOUDFRONT_ID=$(terraform output -raw cloudfront_distribution_id)
-          BUCKET_NAME=$(terraform output -raw frontend_bucket_name_actual)
-          GRAPHQL_URL=$(terraform output -raw graphql_url)
+          # Get API Gateway URL
+          API_ID=$(aws apigatewayv2 get-apis --query "Items[?Name=='ghostbusters-lambda-API-dev'].ApiId" --output text)
+          GRAPHQL_URL="https://${API_ID}.execute-api.us-east-1.amazonaws.com/graphql"
+
+          # Get CloudFront distribution ID and domain
+          CLOUDFRONT_ID=$(aws cloudfront list-distributions --query "DistributionList.Items[?Origins.Items[0].DomainName=='ghostbusters-react-front-dev.s3.us-east-1.amazonaws.com'].Id" --output text)
+
+          # S3 bucket name
+          BUCKET_NAME="ghostbusters-react-front-dev"
+
           echo "cloudfront_id=$CLOUDFRONT_ID" >> $GITHUB_OUTPUT
           echo "bucket_name=$BUCKET_NAME" >> $GITHUB_OUTPUT
           echo "graphql_url=$GRAPHQL_URL" >> $GITHUB_OUTPUT
@@ -54,16 +59,16 @@ jobs:
       - name: Build frontend
         run: CI=false npm run build
         env:
-          REACT_APP_GRAPHQL_URI: ${{ steps.terraform.outputs.graphql_url }}
+          REACT_APP_GRAPHQL_URI: ${{ steps.infra.outputs.graphql_url }}
 
       - name: Upload to S3
         run: |
-          echo "Uploading built assets to: ${{ steps.terraform.outputs.bucket_name }}"
-          aws s3 sync ./build s3://${{ steps.terraform.outputs.bucket_name }} --delete --acl bucket-owner-full-control
+          echo "Uploading built assets to: ${{ steps.infra.outputs.bucket_name }}"
+          aws s3 sync ./build s3://${{ steps.infra.outputs.bucket_name }} --delete --acl bucket-owner-full-control
 
       - name: Invalidate CloudFront cache
         run: |
-          echo "Invalidating CloudFront distribution: ${{ steps.terraform.outputs.cloudfront_id }}"
+          echo "Invalidating CloudFront distribution: ${{ steps.infra.outputs.cloudfront_id }}"
           aws cloudfront create-invalidation \
-            --distribution-id ${{ steps.terraform.outputs.cloudfront_id }} \
+            --distribution-id ${{ steps.infra.outputs.cloudfront_id }} \
             --paths "/*"
