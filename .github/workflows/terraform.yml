@@ -61,6 +61,24 @@ jobs:
       - name: Terraform Validate
         run: terraform validate
 
+      - name: Import existing routes (if they exist)
+        run: |
+          # Get API Gateway ID
+          API_ID=$(aws apigatewayv2 get-apis --query "Items[?Name=='ghostbusters-lambda-API-dev'].ApiId" --output text)
+
+          if [ -n "$API_ID" ]; then
+            echo "Found API Gateway: $API_ID"
+
+            # Try to import OPTIONS route if it exists
+            terraform import aws_apigatewayv2_route.graphql_options "$API_ID/OPTIONS%2F%2Fgraphql" 2>/dev/null || echo "OPTIONS route import skipped"
+
+            # Try to import healthz route if it exists
+            terraform import aws_apigatewayv2_route.healthz "$API_ID/GET%2F%2Fhealthz" 2>/dev/null || echo "Healthz route import skipped"
+          else
+            echo "No existing API Gateway found, will create new resources"
+          fi
+        continue-on-error: true
+
       - name: Terraform Plan
         run: terraform plan
 
