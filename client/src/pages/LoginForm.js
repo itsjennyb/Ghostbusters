@@ -61,7 +61,7 @@ const LoginForm = () => {
 
   return (
     <div className="formContainer loginSignup">
-      {Auth.loggedIn() && <Navigate to="/explore" />}
+      {Auth.loggedIn() && <Navigate to="/profile" />}
 
       <h1>Ghostbusters</h1>
 
