@@ -459,6 +459,51 @@ async function createUser({ email, password, firstName }) {
   }
 }
 
+// Create user profile for Cognito-authenticated users (no password)
+async function createUserProfile({ _id, email, firstName }) {
+  const now = new Date().toISOString();
+
+  // Create user record
+  const userRecord = {
+    _id,
+    email,
+    firstName,
+    reviews: [],
+    likes: [],
+    matches: [],
+    dislikes: [],
+    profile: null,
+    preference: null,
+    createdAt: now,
+    updatedAt: now,
+  };
+
+  // Create user profile in DynamoDB
+  try {
+    await documentClient.send(new PutCommand({
+      TableName: USERS_TABLE,
+      Item: {
+        _id,
+        sk: SK_PATTERNS.PROFILE,
+        email,
+        firstName,
+        createdAt: now,
+        updatedAt: now,
+      },
+      ConditionExpression: 'attribute_not_exists(#id) AND attribute_not_exists(#sk)',
+      ExpressionAttributeNames: { '#id': '_id', '#sk': 'sk' }
+    }));
+
+    return sanitizeUser(userRecord);
+  } catch (error) {
+    if (error.name === 'ConditionalCheckFailedException') {
+      throw new Error('A user profile already exists.');
+    }
+    console.error('Error creating user profile:', error.message);
+    throw error;
+  }
+}
+
 async function setProfile(userId, profileInput) {
   const userProfile = await getUserProfileById(userId);
 
@@ -696,6 +741,7 @@ module.exports = {
   addLike,
   addReview,
   createUser,
+  createUserProfile,
   getUserByEmail,
   getUserById,
   getUserForAuthByEmail,

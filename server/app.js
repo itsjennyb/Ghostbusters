@@ -7,7 +7,8 @@ require('./config/connection');
 
 const { ApolloServer } = require('apollo-server-express');
 const { typeDefs, resolvers } = require('./schemas');
-const { authMiddleware } = require('./utils/auth');
+// Use Cognito authentication
+const { authMiddleware } = require('./utils/cognito-auth');
 
 let apolloServer;
 let appPromise;

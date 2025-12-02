@@ -41,12 +41,29 @@ jobs:
           # S3 bucket name
           BUCKET_NAME="ghostbusters-react-front-dev"
 
+          # Get Cognito User Pool ID
+          COGNITO_USER_POOL_ID=$(aws cognito-idp list-user-pools --max-results 20 --query "UserPools[?Name=='ghostbusters-users-dev'].Id" --output text)
+
+          # Get Cognito User Pool Client ID
+          if [ -n "$COGNITO_USER_POOL_ID" ]; then
+            COGNITO_CLIENT_ID=$(aws cognito-idp list-user-pool-clients --user-pool-id "$COGNITO_USER_POOL_ID" --query "UserPoolClients[?ClientName=='ghostbusters-web-client-dev'].ClientId" --output text)
+
+            # Get Cognito Identity Pool ID
+            COGNITO_IDENTITY_POOL_ID=$(aws cognito-identity list-identity-pools --max-results 20 --query "IdentityPools[?IdentityPoolName=='ghostbusters_identity_pool_dev'].IdentityPoolId" --output text)
+          fi
+
           echo "cloudfront_id=$CLOUDFRONT_ID" >> $GITHUB_OUTPUT
           echo "bucket_name=$BUCKET_NAME" >> $GITHUB_OUTPUT
           echo "graphql_url=$GRAPHQL_URL" >> $GITHUB_OUTPUT
+          echo "cognito_user_pool_id=$COGNITO_USER_POOL_ID" >> $GITHUB_OUTPUT
+          echo "cognito_client_id=$COGNITO_CLIENT_ID" >> $GITHUB_OUTPUT
+          echo "cognito_identity_pool_id=$COGNITO_IDENTITY_POOL_ID" >> $GITHUB_OUTPUT
           echo "Using CloudFront ID: $CLOUDFRONT_ID"
           echo "Using S3 bucket: $BUCKET_NAME"
           echo "Using GraphQL URL: $GRAPHQL_URL"
+          echo "Using Cognito User Pool ID: $COGNITO_USER_POOL_ID"
+          echo "Using Cognito Client ID: $COGNITO_CLIENT_ID"
+          echo "Using Cognito Identity Pool ID: $COGNITO_IDENTITY_POOL_ID"
 
       - name: Set up Node
         uses: actions/setup-node@v3
@@ -60,6 +77,10 @@ jobs:
         run: CI=false npm run build
         env:
           REACT_APP_GRAPHQL_URI: ${{ steps.infra.outputs.graphql_url }}
+          REACT_APP_COGNITO_USER_POOL_ID: ${{ steps.infra.outputs.cognito_user_pool_id }}
+          REACT_APP_COGNITO_CLIENT_ID: ${{ steps.infra.outputs.cognito_client_id }}
+          REACT_APP_COGNITO_IDENTITY_POOL_ID: ${{ steps.infra.outputs.cognito_identity_pool_id }}
+          REACT_APP_AWS_REGION: us-east-1
 
       - name: Upload to S3
         run: |

@@ -1,6 +1,5 @@
 const { AuthenticationError } = require('apollo-server-express');
 const UserRepository = require('../models/User');
-const { signToken } = require('../utils/auth');
 
 const resolvers = {
 
@@ -29,33 +28,33 @@ const resolvers = {
 
   Mutation: {
 
-    login: async (parent, args) => {
-      console.log("LOGIN ATTEMPT:", args.email); //added to find bug
-      const userForAuth = await UserRepository.getUserForAuthByEmail(args.email);
-      console.log("USER LOOKUP RESULTS:", userForAuth); //added to find bug
-
-      if (!userForAuth) {
-        throw new AuthenticationError('User not found by that email.');
+    // Sync Cognito user with DynamoDB profile
+    syncUser: async (parent, args, context) => {
+      if (!context.user) {
+        throw new AuthenticationError('You must be logged in.');
       }
 
-      const correctPw = await UserRepository.verifyPassword(userForAuth, args.password);
-
-      if (!correctPw) {
-        throw new AuthenticationError('Incorrect password.');
+      // Check if user exists in DynamoDB
+      try {
+        const existingUser = await UserRepository.getUserById(context.user._id, { populate: false });
+        if (existingUser) {
+          return existingUser;
+        }
+      } catch (err) {
+        // User doesn't exist, create new profile
       }
 
-      const user = await UserRepository.getUserById(userForAuth._id, { populate: true });
-      const token = signToken(user);
+      // Create new user profile with Cognito data
+      const newUser = {
+        _id: context.user._id, // Use Cognito sub as user ID
+        email: context.user.email,
+        firstName: args.firstName || context.user.firstName,
+      };
 
-      return { token, user, me: user };
-    },
+      // Save to DynamoDB
+      await UserRepository.createUserProfile(newUser);
 
-    addUser: async (parent, args) => {
-      const user = await UserRepository.createUser(args);
-      const hydratedUser = await UserRepository.getUserById(user._id, { populate: true });
-      const token = signToken(hydratedUser);
-
-      return { token, user: hydratedUser, me: hydratedUser };
+      return await UserRepository.getUserById(context.user._id, { populate: true });
     },
 
     addProfile: async (parent, args, context) => {

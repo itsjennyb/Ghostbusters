@@ -2,7 +2,12 @@ import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { ApolloClient, ApolloProvider, InMemoryCache, createHttpLink } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
+import { Amplify } from 'aws-amplify';
+import awsConfig from './aws-config';
 import './App.css';
+
+// Configure Amplify
+Amplify.configure(awsConfig);
 
 // import Profile from './pages/Profile'
 import Explore from './pages/Explore'

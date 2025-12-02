@@ -79,6 +79,16 @@ resource "aws_lambda_function" "backend" {
   package_type  = "Image"
   image_uri     = "${var.ecr_repository_url}:latest"
   timeout       = 30
+
+  environment {
+    variables = {
+      COGNITO_USER_POOL_ID = aws_cognito_user_pool.main.id
+      COGNITO_CLIENT_ID    = aws_cognito_user_pool_client.web.id
+      AWS_REGION           = var.aws_region
+      USERS_TABLE          = "GhostbustersUsers"
+      USERS_EMAIL_INDEX    = "EmailIndex"
+    }
+  }
 }
 
 resource "aws_apigatewayv2_api" "api" {

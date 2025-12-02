@@ -31,7 +31,16 @@ class AuthService {
     window.location.assign('/profile');
   }
 
-  logout() {
+  async logout() {
+    try {
+      // Sign out from Cognito
+      const { signOut } = await import('aws-amplify/auth');
+      await signOut();
+    } catch (err) {
+      console.error('Error signing out from Cognito:', err);
+    }
+
+    // Clear local storage and redirect
     localStorage.removeItem('id_token');
     window.location.assign('/');
   }

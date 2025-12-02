@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client';
 
+// DEPRECATED: Using Cognito for authentication now
 export const LOGIN_USER = gql`
     mutation login($email: String!, $password: String!) {
         login(email: $email, password: $password) {
@@ -14,6 +15,7 @@ export const LOGIN_USER = gql`
     }
 `
 
+// DEPRECATED: Using Cognito for authentication now
 export const ADD_USER = gql`
     mutation addUser($firstName: String!, $email: String!, $password: String!) {
         addUser(firstName: $firstName, email: $email, password: $password) {
@@ -25,7 +27,43 @@ export const ADD_USER = gql`
                 image
             }
         }
-    }    
+    }
+`
+
+// Sync Cognito user with DynamoDB profile
+export const SYNC_USER = gql`
+    mutation syncUser($firstName: String!) {
+        syncUser(firstName: $firstName) {
+            _id
+            email
+            firstName
+            image
+            profile {
+                _id
+                age
+                gender
+                height
+                work
+                religion
+                politics
+                smoking
+                drinking
+                bio
+            }
+            preference {
+                _id
+                minAge
+                maxAge
+                gender
+                minHeight
+                maxHeight
+                religion
+                politics
+                smoking
+                drinking
+            }
+        }
+    }
 `
 
 export const UPLOAD_IMAGE = gql`

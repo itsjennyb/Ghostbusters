@@ -2,16 +2,18 @@ import React, { useState } from "react";
 import Auth from "../utils/auth";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@apollo/client";
-import { LOGIN_USER } from "../utils/mutations";
+import { SYNC_USER } from "../utils/mutations";
 import { Navigate } from "react-router-dom";
+import { signIn } from 'aws-amplify/auth';
 
 import SignUpForm from "./SignUpForm";
 
 const LoginForm = () => {
   const { register, handleSubmit, formState: {errors} } = useForm();
-  const [login, { error, data }] = useMutation(LOGIN_USER);
+  const [syncUser] = useMutation(SYNC_USER);
   const [isHover, setIsHover] = useState(false);
   const [activeTab, setActiveTab] = useState("login");
+  const [loginError, setLoginError] = useState('');
 
   const [showSignUp, setShowSignUp] = useState(false);
 
@@ -25,14 +27,34 @@ const LoginForm = () => {
 
   const loginSubmit = async (formData, event) => {
     event.preventDefault();
-    try {
-      const { data } = await login({
-        variables: { ...formData },
-      });
-      Auth.login(data.login.token);
+    setLoginError('');
 
+    try {
+      // Sign in with Cognito
+      const { isSignedIn, nextStep } = await signIn({
+        username: formData.email,
+        password: formData.password,
+      });
+
+      if (isSignedIn) {
+        // Get the ID token from the current session
+        const { tokens } = await import('aws-amplify/auth').then(m => m.fetchAuthSession());
+        const idToken = tokens.idToken.toString();
+
+        // Sync user with backend (creates profile if needed)
+        await syncUser({
+          variables: { firstName: tokens.idToken.payload.given_name || formData.email.split('@')[0] }
+        });
+
+        // Store token and redirect
+        Auth.login(idToken);
+      } else {
+        console.log('Next step:', nextStep);
+        setLoginError('Please complete additional sign-in steps.');
+      }
     } catch (err) {
-      console.error(err);
+      console.error('Login error:', err);
+      setLoginError(err.message || 'Failed to sign in. Please check your credentials.');
     }
   };
 
@@ -98,6 +120,8 @@ const LoginForm = () => {
       ) : (
         <>
           <form onSubmit={handleSubmit(loginSubmit)}>
+            {loginError && <div className="error-message" style={{color: 'red', marginBottom: '10px'}}>{loginError}</div>}
+
             <input
               className='loginInput'
               {...register("email", {

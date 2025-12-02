@@ -113,8 +113,9 @@ const typeDefs = gql`
     }
 
     type Mutation {
-        login(email: String!, password: String!): Auth
-        addUser(email: String!, password: String!, firstName: String!): Auth
+        # Cognito handles login/signup, so these are removed
+        # login and addUser are now handled by AWS Cognito
+        syncUser(firstName: String!): User
         addProfile(profile: ProfileInput!): Profile
         editProfile(profile: EditProfileInput!): Profile
         addReview(userId: ID!, reviewText: String!): User
