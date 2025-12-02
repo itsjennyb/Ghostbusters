@@ -5,11 +5,6 @@ import { setContext } from '@apollo/client/link/context';
 import { Amplify } from 'aws-amplify';
 import awsConfig from './aws-config';
 import './App.css';
-
-// Configure Amplify
-Amplify.configure(awsConfig);
-
-// import Profile from './pages/Profile'
 import Explore from './pages/Explore'
 import Login from './pages/LoginForm'
 import SignUp from './pages/SignUpForm'
@@ -21,8 +16,10 @@ import Profile from './pages/Profile'
 import Matches from './pages/Matches'
 import EditProfile from './pages/EditProfile';
 import EditPreferences from './pages/EditPreferences';
-
 import Upload from './components/Upload'
+
+// Configure Amplify
+Amplify.configure(awsConfig);
 
 // Normalise configuration for the GraphQL endpoint so the app can run from static hosting
 const resolveGraphqlUri = () => {
