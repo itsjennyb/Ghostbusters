@@ -84,7 +84,6 @@ resource "aws_lambda_function" "backend" {
     variables = {
       COGNITO_USER_POOL_ID = aws_cognito_user_pool.main.id
       COGNITO_CLIENT_ID    = aws_cognito_user_pool_client.web.id
-      AWS_REGION           = var.aws_region
       USERS_TABLE          = "GhostbustersUsers"
       USERS_EMAIL_INDEX    = "EmailIndex"
     }
