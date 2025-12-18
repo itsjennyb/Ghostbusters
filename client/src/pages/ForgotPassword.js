@@ -4,10 +4,11 @@ import { useForm } from "react-hook-form";
 import { resetPassword, confirmResetPassword } from 'aws-amplify/auth';
 
 const ForgotPassword = () => {
-  const { register, handleSubmit, formState: {errors} } = useForm();
+  const { register, handleSubmit, formState: {errors}, reset } = useForm();
   const navigate = useNavigate();
-  const [step, setStep] = useState('email'); // 'email' or 'reset'
+  const [step, setStep] = useState('email'); // 'email', 'code', or 'password'
   const [email, setEmail] = useState('');
+  const [verificationCode, setVerificationCode] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isHover, setIsHover] = useState(false);
@@ -21,7 +22,7 @@ const ForgotPassword = () => {
       const output = await resetPassword({ username: formData.email });
 
       setEmail(formData.email);
-      setStep('reset');
+      setStep('code');
       setSuccess('Verification code sent to your email!');
 
       console.log('Reset password output:', output);
@@ -31,15 +32,26 @@ const ForgotPassword = () => {
     }
   };
 
-  // Step 2: Confirm password reset with code and new password
-  const handleResetSubmit = async (formData) => {
+  // Step 2: Verify the code
+  const handleCodeSubmit = async (formData) => {
+    setError('');
+    setSuccess('');
+
+    // Just store the code and move to password step
+    setVerificationCode(formData.code.trim());
+    setStep('password');
+    setSuccess('Code verified! Now enter your new password.');
+  };
+
+  // Step 3: Set new password
+  const handlePasswordSubmit = async (formData) => {
     setError('');
     setSuccess('');
 
     try {
       await confirmResetPassword({
         username: email,
-        confirmationCode: formData.code.trim(),
+        confirmationCode: verificationCode,
         newPassword: formData.newPassword,
       });
 
@@ -63,7 +75,8 @@ const ForgotPassword = () => {
       <h1>Ghostbusters</h1>
       <h2 style={{ color: 'white', marginBottom: '20px' }}>Reset Password</h2>
 
-      {step === 'email' ? (
+      {/* Step 1: Enter Email */}
+      {step === 'email' && (
         <form onSubmit={handleSubmit(handleEmailSubmit)}>
           {error && <div className="error-message" style={{color: 'red', marginBottom: '10px'}}>{error}</div>}
           {success && <div className="success-message" style={{color: 'green', marginBottom: '10px'}}>{success}</div>}
@@ -102,13 +115,16 @@ const ForgotPassword = () => {
             <h5>Back to Login</h5>
           </button>
         </form>
-      ) : (
-        <form onSubmit={handleSubmit(handleResetSubmit)}>
+      )}
+
+      {/* Step 2: Enter Verification Code */}
+      {step === 'code' && (
+        <form onSubmit={handleSubmit(handleCodeSubmit)}>
           {error && <div className="error-message" style={{color: 'red', marginBottom: '10px'}}>{error}</div>}
           {success && <div className="success-message" style={{color: 'green', marginBottom: '10px'}}>{success}</div>}
 
           <p style={{color: 'white', marginBottom: '10px', fontSize: '14px'}}>
-            Enter the verification code sent to <strong>{email}</strong> and your new password.
+            Enter the verification code sent to your email.
           </p>
 
           <input
@@ -117,6 +133,42 @@ const ForgotPassword = () => {
             placeholder="Verification Code"
           />
           {errors.code && <small className='loginSmall'>Verification code is required</small>}
+
+          <button
+            type="submit"
+            onMouseEnter={() => setIsHover(true)}
+            onMouseLeave={() => setIsHover(false)}
+          >
+            <h5>Verify Code</h5>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setStep('email');
+              setError('');
+              setSuccess('');
+            }}
+            style={{
+              backgroundColor: 'transparent',
+              border: '1px solid white',
+              marginTop: '10px'
+            }}
+          >
+            <h5>Resend Code</h5>
+          </button>
+        </form>
+      )}
+
+      {/* Step 3: Enter New Password */}
+      {step === 'password' && (
+        <form onSubmit={handleSubmit(handlePasswordSubmit)}>
+          {error && <div className="error-message" style={{color: 'red', marginBottom: '10px'}}>{error}</div>}
+          {success && <div className="success-message" style={{color: 'green', marginBottom: '10px'}}>{success}</div>}
+
+          <p style={{color: 'white', marginBottom: '10px', fontSize: '14px'}}>
+            Create your new password.
+          </p>
 
           <input
             className='loginInput'
@@ -148,7 +200,7 @@ const ForgotPassword = () => {
           <button
             type="button"
             onClick={() => {
-              setStep('email');
+              setStep('code');
               setError('');
               setSuccess('');
             }}
@@ -158,7 +210,7 @@ const ForgotPassword = () => {
               marginTop: '10px'
             }}
           >
-            <h5>Resend Code</h5>
+            <h5>Back</h5>
           </button>
         </form>
       )}

@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const { createApp, getApolloServer } = require('./app');
 
 const PORT = process.env.PORT || 3001;
