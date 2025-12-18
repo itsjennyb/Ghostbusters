@@ -3,7 +3,7 @@ import Auth from "../utils/auth";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@apollo/client";
 import { SYNC_USER } from "../utils/mutations";
-import { Navigate } from "react-router-dom";
+import { Navigate, Link } from "react-router-dom";
 import { signIn, signOut, getCurrentUser, fetchAuthSession } from 'aws-amplify/auth';
 
 import SignUpForm from "./SignUpForm";
@@ -163,6 +163,20 @@ const LoginForm = () => {
               <h5>Log In</h5>
             </button>
           </form>
+
+          <Link
+            to="/forgot-password"
+            style={{
+              color: 'white',
+              textDecoration: 'none',
+              marginTop: '15px',
+              display: 'block',
+              fontSize: '14px',
+              textAlign: 'center'
+            }}
+          >
+            Forgot Password?
+          </Link>
         </>
       )}
     </div>

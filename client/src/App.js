@@ -8,6 +8,7 @@ import './App.css';
 import Explore from './pages/Explore'
 import Login from './pages/LoginForm'
 import SignUp from './pages/SignUpForm'
+import ForgotPassword from './pages/ForgotPassword'
 import Footer from './components/Footer'
 import ProfileForm from './pages/CreateProfile'
 import PreferencesForm from './pages/Preferences';
@@ -91,6 +92,7 @@ function App() {
             />
             <Route path='/login' element={<Login />} />
             <Route path='/signup' element={<SignUp />} />
+            <Route path='/forgot-password' element={<ForgotPassword />} />
             <Route path='/createprofile' element={<ProfileForm />} />
             <Route path='/preferences' element={<PreferencesForm />} />
             <Route path='/details/:userId' element={<Details />} />
