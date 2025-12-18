@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { useMutation } from "@apollo/client";
 import { SYNC_USER } from "../utils/mutations";
 import { Navigate } from "react-router-dom";
-import { signIn } from 'aws-amplify/auth';
+import { signIn, signOut, getCurrentUser, fetchAuthSession } from 'aws-amplify/auth';
 
 import SignUpForm from "./SignUpForm";
 
@@ -30,6 +30,19 @@ const LoginForm = () => {
     setLoginError('');
 
     try {
+      // Check if there's already a signed-in user
+      try {
+        const currentUser = await getCurrentUser();
+        if (currentUser) {
+          // There's already a session, sign out first
+          console.log('Existing session found, signing out first...');
+          await signOut();
+        }
+      } catch (noUserError) {
+        // No current user, proceed with sign in
+        console.log('No existing session found');
+      }
+
       // Sign in with Cognito
       const { isSignedIn, nextStep } = await signIn({
         username: formData.email,
@@ -38,7 +51,7 @@ const LoginForm = () => {
 
       if (isSignedIn) {
         // Get the ID token from the current session
-        const { tokens } = await import('aws-amplify/auth').then(m => m.fetchAuthSession());
+        const { tokens } = await fetchAuthSession();
         const idToken = tokens.idToken.toString();
 
         // Sync user with backend (creates profile if needed)
