@@ -5,6 +5,12 @@ const userPoolId = process.env.COGNITO_USER_POOL_ID;
 const clientId = process.env.COGNITO_CLIENT_ID;
 const region = process.env.AWS_REGION || 'us-east-1';
 
+console.log('🔐 Cognito Auth Configuration:', {
+  userPoolId: userPoolId ? `${userPoolId.substring(0, 15)}...` : 'NOT SET',
+  clientId: clientId ? `${clientId.substring(0, 10)}...` : 'NOT SET',
+  region
+});
+
 // Create verifier for access tokens
 const verifier = userPoolId && clientId ? CognitoJwtVerifier.create({
   userPoolId,
@@ -18,6 +24,12 @@ const idTokenVerifier = userPoolId && clientId ? CognitoJwtVerifier.create({
   tokenUse: 'id',
   clientId,
 }) : null;
+
+if (!idTokenVerifier) {
+  console.error('❌ Cognito verifier not initialized - check environment variables');
+} else {
+  console.log('✅ Cognito verifiers initialized successfully');
+}
 
 module.exports = {
   authMiddleware: async function ({ req }) {
@@ -35,9 +47,12 @@ module.exports = {
         let payload;
         try {
           payload = await idTokenVerifier.verify(token);
+          console.log('✅ ID token verified successfully for user:', payload.email);
         } catch (idErr) {
+          console.log('ID token verification failed, trying access token:', idErr.message);
           // If not ID token, try access token
           payload = await verifier.verify(token);
+          console.log('✅ Access token verified successfully');
         }
 
         // Extract user info from token
@@ -47,11 +62,12 @@ module.exports = {
           firstName: payload.given_name || payload.name || payload.email?.split('@')[0],
           cognitoUsername: payload['cognito:username'],
         };
+        console.log('👤 User context set:', { _id: user._id, email: user.email });
       } catch (err) {
-        console.log('Invalid Cognito token:', err.message);
+        console.error('❌ Token verification failed:', err.message);
       }
     } else if (token) {
-      console.log('Cognito not configured - set COGNITO_USER_POOL_ID and COGNITO_CLIENT_ID');
+      console.error('❌ Cognito not configured - set COGNITO_USER_POOL_ID and COGNITO_CLIENT_ID');
     }
 
     // Return context with user
