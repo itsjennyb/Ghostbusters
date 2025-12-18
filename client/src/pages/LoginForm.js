@@ -54,13 +54,16 @@ const LoginForm = () => {
         const { tokens } = await fetchAuthSession();
         const idToken = tokens.idToken.toString();
 
+        // Store token FIRST so Apollo Client can use it in the GraphQL request
+        localStorage.setItem('id_token', idToken);
+
         // Sync user with backend (creates profile if needed)
         await syncUser({
           variables: { firstName: tokens.idToken.payload.given_name || formData.email.split('@')[0] }
         });
 
-        // Store token and redirect
-        Auth.login(idToken);
+        // Redirect to profile
+        window.location.assign('/profile');
       } else {
         console.log('Next step:', nextStep);
         setLoginError('Please complete additional sign-in steps.');
